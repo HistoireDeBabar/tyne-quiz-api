@@ -10,11 +10,19 @@ import (
   Allows Access to Params in Public Field.
 */
 type MockParamsReturnDataService struct {
-	Params interface{}
+	Params     interface{}
+	SaveParams [2]interface{}
+	SaveLength int
 }
 
 func (mds *MockParamsReturnDataService) GetItem(params interface{}) (result interface{}, err error) {
 	mds.Params = params
+	return result, nil
+}
+
+func (mds *MockParamsReturnDataService) PutItem(params interface{}) (result interface{}, err error) {
+	mds.SaveParams[mds.SaveLength] = params
+	mds.SaveLength++
 	return result, nil
 }
 
@@ -24,6 +32,10 @@ func (mds *MockParamsReturnDataService) GetItem(params interface{}) (result inte
 type MockErrorDataService struct{}
 
 func (mds *MockErrorDataService) GetItem(params interface{}) (result interface{}, err error) {
+	return result, errors.New("DataServiceError")
+}
+
+func (mds *MockErrorDataService) PutItem(params interface{}) (result interface{}, err error) {
 	return result, errors.New("DataServiceError")
 }
 
@@ -39,6 +51,10 @@ func (mds *MockReturnsEmptyResultsDataService) GetItem(params interface{}) (resu
 	return result, nil
 }
 
+func (mds *MockReturnsEmptyResultsDataService) PutItem(params interface{}) (result interface{}, err error) {
+	return result, errors.New("DataServiceError")
+}
+
 /**
   Retuns a different type of type
 */
@@ -47,6 +63,10 @@ type MockReturnsWrongTypedResultsDataService struct{}
 func (mds *MockReturnsWrongTypedResultsDataService) GetItem(params interface{}) (result interface{}, err error) {
 	result = "I shouldn't be a string"
 	return result, nil
+}
+
+func (mds *MockReturnsWrongTypedResultsDataService) PutItem(params interface{}) (result interface{}, err error) {
+	return result, errors.New("DataServiceError")
 }
 
 /**
@@ -132,10 +152,18 @@ func (mds *MockReturnsResultsDataService) GetItem(params interface{}) (result in
 	return output, nil
 }
 
+func (mds *MockReturnsResultsDataService) PutItem(params interface{}) (result interface{}, err error) {
+	return result, errors.New("DataServiceError")
+}
+
 /**
   Retuns incorrect structure of data
 */
 type MockReturnsResultsBadStructureDataService struct{}
+
+func (mds *MockReturnsResultsBadStructureDataService) PutItem(params interface{}) (result interface{}, err error) {
+	return result, errors.New("DataServiceError")
+}
 
 func (mds *MockReturnsResultsBadStructureDataService) GetItem(params interface{}) (result interface{}, err error) {
 	count := &[]int64{2}[0]
