@@ -1,0 +1,146 @@
+package test
+
+import (
+	"bytes"
+	"encoding/json"
+	"github.com/HistoireDeBabar/tyne-quiz-api/ctrl"
+	"github.com/HistoireDeBabar/tyne-quiz-api/data"
+	"github.com/HistoireDeBabar/tyne-quiz-api/models"
+	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func TestControllerReturnsJSONQuiz(t *testing.T) {
+	controller := ctrl.QuizController{
+		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	res, err := http.Get(ts.URL + "?id=test")
+	if err != nil {
+		log.Fatal(err)
+	}
+	question, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	expected := &models.Quiz{
+		Id: "1",
+	}
+	expectedString, err := json.Marshal(expected)
+	if err != nil {
+		t.Fatal("error:", err)
+	}
+	if !bytes.Equal(expectedString, question) {
+		t.Fatalf("expected to eql: %v to not %v", expectedString, question)
+	}
+}
+
+func TestControllerSetsHeaders(t *testing.T) {
+	controller := ctrl.QuizController{
+		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	res, err := http.Get(ts.URL + "?id=test")
+	if err != nil {
+		log.Fatal(err)
+	}
+	contentHeaders := res.Header["Content-Type"]
+	jsonHeader := false
+	for _, v := range contentHeaders {
+		if v == "application/json" {
+			jsonHeader = true
+		}
+	}
+	if jsonHeader == false {
+		log.Fatal("Expected application json to be in content headers")
+	}
+}
+
+func TestControllerReturns404IfIdIsNotPresentInQueryString(t *testing.T) {
+	controller := ctrl.QuizController{
+		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	r, err := http.Get(ts.URL)
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 400 {
+		log.Fatalf("Expected Request to equal 400 Got: %v", r.StatusCode)
+	}
+}
+
+func TestControllerReturns404IfNotA200Request(t *testing.T) {
+	controller := ctrl.QuizController{
+		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	r, err := http.Head(ts.URL)
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 405 {
+		log.Fatal("Expected Request to equal 405")
+	}
+}
+
+func TestControllerUsesIdFromQueryString(t *testing.T) {
+	mock := fixtures.MockQuizLoaderAccessParams{}
+	controller := ctrl.QuizController{
+		QuizLoader: mock,
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	r, err := http.Get(ts.URL + "?id=test")
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 200 {
+		log.Fatalf("Expected Request to equal 200 got: %v", r.StatusCode)
+	}
+}
+
+func TestControllerReturnsErrorFromServer(t *testing.T) {
+	mock := fixtures.MockError{}
+	controller := ctrl.QuizController{
+		QuizLoader: mock,
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	r, err := http.Get(ts.URL + "?id=test")
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 500 {
+		log.Fatalf("Expected Request to equal 500 got: %v", r.StatusCode)
+	}
+}
+
+func BenchmarkQuizEndpoint(b *testing.B) {
+	quizController := ctrl.QuizController{
+		QuizLoader: data.CreateDynamoDataLoader(),
+	}
+	ts := httptest.NewServer(http.HandlerFunc(quizController.GetQuiz))
+	defer ts.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		http.Get(ts.URL + "/quiz?id=test")
+	}
+}
