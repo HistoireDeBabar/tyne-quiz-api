@@ -10,7 +10,9 @@ import (
 func main() {
 	quizController := ctrl.QuizController{
 		QuizLoader: data.CreateDynamoDataLoader(),
+		QuizSaver:  data.CreateDynamoDataSaver(),
 	}
 	http.HandleFunc("/quiz", quizController.GetQuiz)
-	log.Fatal(http.ListenAndServe(":80", nil))
+	http.HandleFunc("/answers", quizController.PostAnswers)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

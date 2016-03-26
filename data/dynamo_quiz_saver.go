@@ -1,9 +1,11 @@
 package data
 
 import (
+	"fmt"
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/satori/go.uuid"
 	"sync"
 )
 
@@ -39,11 +41,15 @@ func (dqs DynamoQuizSaver) Save(quiz *models.AnsweredQuiz) {
 }
 
 func (dqs *DynamoQuizSaver) upload(answer *models.Answer, quizId string) {
+	answerId := answer.Id
+	if answerId == "" {
+		answerId = uuid.NewV4().String()
+	}
 	params := &dynamodb.PutItemInput{
 		TableName: aws.String(AnswerTableName),
 		Item: map[string]*dynamodb.AttributeValue{
 			"id": &dynamodb.AttributeValue{
-				S: aws.String(answer.Id),
+				S: aws.String(answerId),
 			},
 			"quizId": &dynamodb.AttributeValue{
 				S: aws.String(quizId),
@@ -56,7 +62,9 @@ func (dqs *DynamoQuizSaver) upload(answer *models.Answer, quizId string) {
 			},
 		},
 	}
-	dqs.Service.PutItem(params)
+	_, e := dqs.Service.PutItem(params)
+	if e != nil {
+		fmt.Println(e)
+	}
 	dqs.wg.Done()
-	//log error
 }

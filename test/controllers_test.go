@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -98,6 +99,22 @@ func TestControllerReturns404IfNotA200Request(t *testing.T) {
 	}
 }
 
+func TestControllerReturns404ForPostIfNotA200Request(t *testing.T) {
+	controller := ctrl.QuizController{
+		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
+	defer ts.Close()
+
+	r, err := http.Head(ts.URL)
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 405 {
+		log.Fatal("Expected Request to equal 405")
+	}
+}
+
 func TestControllerUsesIdFromQueryString(t *testing.T) {
 	mock := fixtures.MockQuizLoaderAccessParams{}
 	controller := ctrl.QuizController{
@@ -142,5 +159,78 @@ func BenchmarkQuizEndpoint(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		http.Get(ts.URL + "/quiz?id=test")
+	}
+}
+
+func TestControllerReturnsErrorIfJsonParseFailed(t *testing.T) {
+	mock := &fixtures.MockSaver{}
+	controller := ctrl.QuizController{
+		QuizSaver: mock,
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
+	defer ts.Close()
+
+	r, err := http.Post(ts.URL, "appliction/json", strings.NewReader(""))
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 400 {
+		log.Fatal("Expected Request to equal 400")
+	}
+}
+
+func TestControllerReturnsErrorIfResponseIsNotValid(t *testing.T) {
+	mock := &fixtures.MockSaver{}
+	controller := ctrl.QuizController{
+		QuizSaver: mock,
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
+	defer ts.Close()
+
+	r, err := http.Post(ts.URL, "appliction/json", strings.NewReader("{\"id\":\"hello\"}"))
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 400 {
+		log.Fatal("Expected Request to equal 400")
+	}
+}
+
+func TestControllerReturnsSuccessCallingSaveWithValidBody(t *testing.T) {
+	mock := &fixtures.MockSaver{}
+	controller := ctrl.QuizController{
+		QuizSaver: mock,
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
+	defer ts.Close()
+
+	r, err := http.Post(ts.URL, "appliction/json", strings.NewReader("{\"id\":\"hello\", \"answers\": [{\"questionId\": \"question1\", \"answer\": \"shearer\"}]}"))
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 200 {
+		log.Fatal("Expected Request to equal 200")
+	}
+	if mock.Params == nil {
+		log.Fatal("Expected params to not equal nil")
+	}
+	if mock.Params.Id != "hello" {
+		log.Fatal("Expected Id to equal hello got %v", mock.Params.Id)
+	}
+	if len(mock.Params.Answers) != 1 {
+		log.Fatal("Expected To Have 1 Answer")
+	}
+}
+
+func BenchmarkAnswerEndpoint(b *testing.B) {
+	quizController := ctrl.QuizController{
+		QuizSaver: data.CreateDynamoDataSaver(),
+	}
+	ts := httptest.NewServer(http.HandlerFunc(quizController.PostAnswers))
+	defer ts.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		http.Post(ts.URL, "appliction/json", strings.NewReader("{\"id\":\"hello\", \"answers\": [{\"questionId\": \"question1\", \"answer\": \"shearer\"}]}"))
 	}
 }
