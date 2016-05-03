@@ -3,7 +3,7 @@
 ###### Get
 
     /quiz?=id
-    
+
 
   **Response**
 
@@ -13,13 +13,13 @@
         {
           "id": "a",
           "question": "Infamous Newcastle United number 9 and the English Premier Leagues all time top goal scorer",
-          "Answers": [
+          "answers": [
             {
               "id": "1",
-              "QuestionId": "a",
-              "Correct": true,
-              "AnswerCount": 2,
-              "Answer": "Alan Shearer"
+              "questionId": "a",
+              "correct": true,
+              "answerCount": 2,
+              "answer": "Alan Shearer"
             }
           ]
         }
