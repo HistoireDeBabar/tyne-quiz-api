@@ -1,4 +1,4 @@
-package test
+package ctrl
 
 import (
 	"bytes"
@@ -10,14 +10,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/HistoireDeBabar/tyne-quiz-api/ctrl"
 	"github.com/HistoireDeBabar/tyne-quiz-api/data"
+	"github.com/HistoireDeBabar/tyne-quiz-api/fixtures"
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
-	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
 )
 
 func TestControllerReturnsJSONQuiz(t *testing.T) {
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -58,7 +57,7 @@ func TestControllerReturnsJSONQuiz(t *testing.T) {
 }
 
 func TestControllerSetsHeaders(t *testing.T) {
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -81,7 +80,7 @@ func TestControllerSetsHeaders(t *testing.T) {
 }
 
 func TestControllerReturns404IfIdIsNotPresentInQueryString(t *testing.T) {
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -97,7 +96,7 @@ func TestControllerReturns404IfIdIsNotPresentInQueryString(t *testing.T) {
 }
 
 func TestControllerReturns404IfNotA200Request(t *testing.T) {
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -113,7 +112,7 @@ func TestControllerReturns404IfNotA200Request(t *testing.T) {
 }
 
 func TestControllerReturns404ForPostIfNotA200Request(t *testing.T) {
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: fixtures.MockQuizLoaderReturnsBasicQuiz{},
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
@@ -130,7 +129,7 @@ func TestControllerReturns404ForPostIfNotA200Request(t *testing.T) {
 
 func TestControllerUsesIdFromQueryString(t *testing.T) {
 	mock := fixtures.MockQuizLoaderAccessParams{}
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: mock,
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -147,7 +146,7 @@ func TestControllerUsesIdFromQueryString(t *testing.T) {
 
 func TestReturns404IfQuizIsntValid(t *testing.T) {
 	mock := fixtures.MockQuizLoaderAccessParamsEmpty{}
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: mock,
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -164,7 +163,7 @@ func TestReturns404IfQuizIsntValid(t *testing.T) {
 
 func TestControllerReturnsErrorFromServer(t *testing.T) {
 	mock := fixtures.MockError{}
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizLoader: mock,
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
@@ -180,7 +179,7 @@ func TestControllerReturnsErrorFromServer(t *testing.T) {
 }
 
 func BenchmarkQuizEndpoint(b *testing.B) {
-	quizController := ctrl.QuizController{
+	quizController := QuizController{
 		QuizLoader: data.CreateDynamoDataLoader(),
 	}
 	ts := httptest.NewServer(http.HandlerFunc(quizController.GetQuiz))
@@ -194,7 +193,7 @@ func BenchmarkQuizEndpoint(b *testing.B) {
 
 func TestControllerReturnsErrorIfJsonParseFailed(t *testing.T) {
 	mock := &fixtures.MockSaver{}
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizSaver: mock,
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
@@ -211,7 +210,7 @@ func TestControllerReturnsErrorIfJsonParseFailed(t *testing.T) {
 
 func TestControllerReturnsErrorIfResponseIsNotValid(t *testing.T) {
 	mock := &fixtures.MockSaver{}
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizSaver: mock,
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
@@ -228,7 +227,7 @@ func TestControllerReturnsErrorIfResponseIsNotValid(t *testing.T) {
 
 func TestControllerReturnsSuccessCallingSaveWithValidBody(t *testing.T) {
 	mock := &fixtures.MockSaver{}
-	controller := ctrl.QuizController{
+	controller := QuizController{
 		QuizSaver: mock,
 	}
 	ts := httptest.NewServer(http.HandlerFunc(controller.PostAnswers))
@@ -253,7 +252,7 @@ func TestControllerReturnsSuccessCallingSaveWithValidBody(t *testing.T) {
 }
 
 func BenchmarkAnswerEndpoint(b *testing.B) {
-	quizController := ctrl.QuizController{
+	quizController := QuizController{
 		QuizSaver: data.CreateDynamoDataSaver(),
 	}
 	ts := httptest.NewServer(http.HandlerFunc(quizController.PostAnswers))

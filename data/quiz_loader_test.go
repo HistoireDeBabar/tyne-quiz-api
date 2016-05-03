@@ -1,15 +1,14 @@
-package test
+package data
 
 import (
 	"testing"
 
-	"github.com/HistoireDeBabar/tyne-quiz-api/data"
-	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
+	"github.com/HistoireDeBabar/tyne-quiz-api/fixtures"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 func TestLoadQuizWithNoDataService(t *testing.T) {
-	quizLoader := data.DynamoQuizLoader{}
+	quizLoader := DynamoQuizLoader{}
 	_, err := quizLoader.Load("test")
 	if err == nil {
 		t.Error("Expected an Error")
@@ -18,7 +17,7 @@ func TestLoadQuizWithNoDataService(t *testing.T) {
 
 func TestLoadWhenDataServiceReturnsAnError(t *testing.T) {
 	service := &fixtures.MockErrorDataService{}
-	quizLoader := data.DynamoQuizLoader{
+	quizLoader := DynamoQuizLoader{
 		Service: service,
 	}
 	_, err := quizLoader.Load("test")
@@ -29,7 +28,7 @@ func TestLoadWhenDataServiceReturnsAnError(t *testing.T) {
 
 func TestLoadQuizCallsDynamoWithCorrectParams(t *testing.T) {
 	service := &fixtures.MockParamsReturnDataService{}
-	quizLoader := data.DynamoQuizLoader{
+	quizLoader := DynamoQuizLoader{
 		Service: service,
 	}
 	_, _ = quizLoader.Load("test")
@@ -54,7 +53,7 @@ func TestLoadQuizCallsDynamoWithCorrectParams(t *testing.T) {
 
 func TestDynamoCreateQuizFunctionHandlesNonDynamoTypes(t *testing.T) {
 	service := &fixtures.MockReturnsWrongTypedResultsDataService{}
-	quizLoader := data.DynamoQuizLoader{
+	quizLoader := DynamoQuizLoader{
 		Service: service,
 	}
 	result, _ := quizLoader.Load("test")
@@ -65,7 +64,7 @@ func TestDynamoCreateQuizFunctionHandlesNonDynamoTypes(t *testing.T) {
 
 func TestDynamoCreateQuizFunctionHandlesPoorlyStructuredTypes(t *testing.T) {
 	service := &fixtures.MockReturnsResultsBadStructureDataService{}
-	quizLoader := data.DynamoQuizLoader{
+	quizLoader := DynamoQuizLoader{
 		Service:      service,
 		AnswerLoader: &fixtures.MockReturnsEmptyAnswers{},
 	}
@@ -77,7 +76,7 @@ func TestDynamoCreateQuizFunctionHandlesPoorlyStructuredTypes(t *testing.T) {
 
 func TestDynamoReturnsNoResults(t *testing.T) {
 	service := &fixtures.MockReturnsEmptyResultsDataService{}
-	quizLoader := data.DynamoQuizLoader{
+	quizLoader := DynamoQuizLoader{
 		Service: service,
 	}
 	result, _ := quizLoader.Load("test")
@@ -88,7 +87,7 @@ func TestDynamoReturnsNoResults(t *testing.T) {
 
 func TestDynamoReturnsResults(t *testing.T) {
 	service := &fixtures.MockReturnsResultsDataService{}
-	quizLoader := data.DynamoQuizLoader{
+	quizLoader := DynamoQuizLoader{
 		Service:      service,
 		AnswerLoader: &fixtures.MockReturnsEmptyAnswers{},
 	}
@@ -116,7 +115,7 @@ func TestDynamoReturnsResults(t *testing.T) {
 }
 
 func BenchmarkDynamoConnect(b *testing.B) {
-	ddl := data.CreateDynamoDataLoader()
+	ddl := CreateDynamoDataLoader()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = ddl.Load("test")

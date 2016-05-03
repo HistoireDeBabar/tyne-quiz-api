@@ -1,22 +1,21 @@
-package test
+package data
 
 import (
 	"testing"
 
-	"github.com/HistoireDeBabar/tyne-quiz-api/data"
+	"github.com/HistoireDeBabar/tyne-quiz-api/fixtures"
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
-	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 func TestQuizSaverReturnsErrorIfServiceIsNil(t *testing.T) {
-	saver := &data.DynamoQuizSaver{}
+	saver := &DynamoQuizSaver{}
 	saver.Save(&models.AnsweredQuiz{})
 }
 
 func TestQuizSaverReturnsErrorIfAnsweredQuizHasNoAnswers(t *testing.T) {
 	service := &fixtures.MockParamsReturnDataService{}
-	quizSaver := data.DynamoQuizSaver{
+	quizSaver := DynamoQuizSaver{
 		Service: service,
 	}
 	quizSaver.Save(&models.AnsweredQuiz{
@@ -26,7 +25,7 @@ func TestQuizSaverReturnsErrorIfAnsweredQuizHasNoAnswers(t *testing.T) {
 
 func TestQuizSaverReturnsErrorIfAnsweredQuizHasNilAnswers(t *testing.T) {
 	service := &fixtures.MockParamsReturnDataService{}
-	quizSaver := data.DynamoQuizSaver{
+	quizSaver := DynamoQuizSaver{
 		Service: service,
 	}
 	quizSaver.Save(&models.AnsweredQuiz{})
@@ -34,7 +33,7 @@ func TestQuizSaverReturnsErrorIfAnsweredQuizHasNilAnswers(t *testing.T) {
 
 func TestQuizSaverReturnsErrorIfDynamoReturnsError(t *testing.T) {
 	service := &fixtures.MockErrorDataService{}
-	quizSaver := data.DynamoQuizSaver{
+	quizSaver := DynamoQuizSaver{
 		Service: service,
 	}
 	answer := []models.Answer{
@@ -51,7 +50,7 @@ func TestQuizSaverReturnsErrorIfDynamoReturnsError(t *testing.T) {
 
 func TestQuizSaverUsesCorrectParams(t *testing.T) {
 	service := &fixtures.MockParamsReturnDataService{}
-	quizSaver := data.DynamoQuizSaver{
+	quizSaver := DynamoQuizSaver{
 		Service: service,
 	}
 	answer := []models.Answer{
@@ -97,7 +96,7 @@ func TestQuizSaverUsesCorrectParams(t *testing.T) {
 }
 
 func BenchmarkDynamoSaveConnection(b *testing.B) {
-	dataSaver := data.CreateDynamoDataSaver()
+	dataSaver := CreateDynamoDataSaver()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		answer := []models.Answer{

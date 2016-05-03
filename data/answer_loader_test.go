@@ -1,14 +1,13 @@
-package test
+package data
 
 import (
 	"testing"
 
-	"github.com/HistoireDeBabar/tyne-quiz-api/data"
-	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
+	"github.com/HistoireDeBabar/tyne-quiz-api/fixtures"
 )
 
 func TestGivenAListOfAnswersCallsDynamoSeveralTime(t *testing.T) {
-	answerLoader := data.DynamoAnswerLoader{
+	answerLoader := DynamoAnswerLoader{
 		Service: &fixtures.MockReturnsResultsAnswerDataService{},
 	}
 	result, err := answerLoader.LoadBatch("id")
