@@ -1,7 +1,7 @@
 package data
 
 import (
-	"fmt"
+	"log"
 	"sync"
 
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
@@ -22,12 +22,12 @@ func CreateDynamoDataSaver() QuizSaver {
 
 func (dqs DynamoQuizSaver) Save(quiz *models.AnsweredQuiz) {
 	if dqs.Service == nil {
-		//log
+		log.Println("QuizSaver::Save::No Data Service Instantiated")
 		return
 	}
 
 	if quiz.Answers == nil || len(quiz.Answers) == 0 {
-		//log
+		log.Println("QuizSaver::Save::No Answers To Save")
 		return
 	}
 
@@ -39,9 +39,9 @@ func (dqs DynamoQuizSaver) Save(quiz *models.AnsweredQuiz) {
 }
 
 func (dqs *DynamoQuizSaver) upload(answer *models.Answer) {
-	answerId := answer.Id
-	if answerId == "" {
-		fmt.Println("Answer has no Id.  Can not upload.")
+	defer dqs.wg.Done()
+	if answer.IsValid() == false {
+		log.Println("QuizSaver::upload::Answer value is Invalid")
 		return
 	}
 	params := &dynamodb.UpdateItemInput{
@@ -63,7 +63,7 @@ func (dqs *DynamoQuizSaver) upload(answer *models.Answer) {
 	}
 	_, e := dqs.Service.UpdateItem(params)
 	if e != nil {
-		fmt.Println(e)
+		log.Println("QuizSaver::upload::Error From DataService::", e)
+		return
 	}
-	dqs.wg.Done()
 }

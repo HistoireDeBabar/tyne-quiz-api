@@ -8,9 +8,20 @@ type Answer struct {
 	Answer      string `json: "answer"`
 }
 
+func (a *Answer) IsValid() (valid bool) {
+	if a.Id == "" {
+		return false
+	}
+	if a.QuestionId == "" {
+		return false
+	}
+	return true
+}
+
 func CreateAnswer(questionId string, id string) *Answer {
 	return &Answer{
-		QuestionId: questionId,
-		Id:         id,
+		QuestionId:  questionId,
+		Id:          id,
+		AnswerCount: 0,
 	}
 }

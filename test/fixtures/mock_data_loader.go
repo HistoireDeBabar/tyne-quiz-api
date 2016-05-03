@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"errors"
+
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 )
 

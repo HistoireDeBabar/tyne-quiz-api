@@ -1,11 +1,12 @@
 package test
 
 import (
+	"testing"
+
 	"github.com/HistoireDeBabar/tyne-quiz-api/data"
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"testing"
 )
 
 func TestQuizSaverReturnsErrorIfServiceIsNil(t *testing.T) {
@@ -88,10 +89,10 @@ func TestQuizSaverUsesCorrectParams(t *testing.T) {
 			t.Errorf("Expected quiz id to question1 or question2 got %v", *questionId.S)
 		}
 
-    updateExpression := *put.UpdateExpression
-    if updateExpression != "SET answerCount = answerCount + :inc" {
+		updateExpression := *put.UpdateExpression
+		if updateExpression != "SET answerCount = answerCount + :inc" {
 			t.Errorf("Expected Update Expression to increment counter got %s", updateExpression)
-    }
+		}
 	}
 }
 

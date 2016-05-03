@@ -66,7 +66,8 @@ func TestDynamoCreateQuizFunctionHandlesNonDynamoTypes(t *testing.T) {
 func TestDynamoCreateQuizFunctionHandlesPoorlyStructuredTypes(t *testing.T) {
 	service := &fixtures.MockReturnsResultsBadStructureDataService{}
 	quizLoader := data.DynamoQuizLoader{
-		Service: service,
+		Service:      service,
+		AnswerLoader: &fixtures.MockReturnsEmptyAnswers{},
 	}
 	result, _ := quizLoader.Load("test")
 	if result.IsEmpty() == false {
@@ -88,7 +89,8 @@ func TestDynamoReturnsNoResults(t *testing.T) {
 func TestDynamoReturnsResults(t *testing.T) {
 	service := &fixtures.MockReturnsResultsDataService{}
 	quizLoader := data.DynamoQuizLoader{
-		Service: service,
+		Service:      service,
+		AnswerLoader: &fixtures.MockReturnsEmptyAnswers{},
 	}
 	result, _ := quizLoader.Load("test")
 	if result.IsEmpty() == true {
