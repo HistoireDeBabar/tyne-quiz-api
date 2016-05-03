@@ -6,7 +6,7 @@ type Quiz struct {
 }
 
 func (q *Quiz) IsEmpty() bool {
-	if q.Questions == nil {
+	if q.Questions == nil || q.Id == "" {
 		return true
 	}
 	invalidCounter := 0

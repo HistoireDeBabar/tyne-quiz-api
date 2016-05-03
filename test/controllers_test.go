@@ -35,6 +35,18 @@ func TestControllerReturnsJSONQuiz(t *testing.T) {
 
 	expected := &models.Quiz{
 		Id: "1",
+		Questions: []models.Question{
+			{
+				Id:       "a",
+				Question: "whats your name",
+				Answers: []*models.Answer{
+					{
+						Id:         "b",
+						QuestionId: "a",
+					},
+				},
+			},
+		},
 	}
 	expectedString, err := json.Marshal(expected)
 	if err != nil {
@@ -130,6 +142,23 @@ func TestControllerUsesIdFromQueryString(t *testing.T) {
 	}
 	if r.StatusCode != 200 {
 		log.Fatalf("Expected Request to equal 200 got: %v", r.StatusCode)
+	}
+}
+
+func TestReturns404IfQuizIsntValid(t *testing.T) {
+	mock := fixtures.MockQuizLoaderAccessParamsEmpty{}
+	controller := ctrl.QuizController{
+		QuizLoader: mock,
+	}
+	ts := httptest.NewServer(http.HandlerFunc(controller.GetQuiz))
+	defer ts.Close()
+
+	r, err := http.Get(ts.URL + "?id=test")
+	if err != nil {
+		log.Fatal("Expected no Error")
+	}
+	if r.StatusCode != 404 {
+		log.Fatalf("Expected Request to equal 404 got: %v", r.StatusCode)
 	}
 }
 

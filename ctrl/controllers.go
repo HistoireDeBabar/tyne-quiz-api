@@ -40,7 +40,6 @@ func (qc *QuizController) PostAnswers(w http.ResponseWriter, r *http.Request) {
 
 	qc.QuizSaver.Save(&answered)
 
-	//qc.QuizSaver.Save()
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, "{}")
 }
@@ -66,6 +65,10 @@ func (qc *QuizController) GetQuiz(w http.ResponseWriter, r *http.Request) {
 	// If an error occurs return a 500
 	if err != nil {
 		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
+	if result.IsEmpty() {
+		http.Error(w, "Resource Not Found", http.StatusNotFound)
 		return
 	}
 	jsonResult, err := json.Marshal(result)
