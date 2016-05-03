@@ -2,21 +2,25 @@ package data
 
 import (
 	"errors"
+	"log"
+
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-const QuestionTableName = "Question"
-const QuizQuestionQuery = "quizId = :quizId"
-
 type DynamoQuizLoader struct {
-	Service DataService
+	Service      DataService
+	AnswerLoader AnswerLoader
 }
 
 func CreateDynamoDataLoader() QuizLoader {
+	dataService := CreateDynamoDataService()
 	return DynamoQuizLoader{
-		Service: CreateDynamoDataService(),
+		Service: dataService,
+		AnswerLoader: &DynamoAnswerLoader{
+			Service: dataService,
+		},
 	}
 }
 
@@ -39,10 +43,10 @@ func (ql DynamoQuizLoader) Load(id string) (quiz models.Quiz, err error) {
 	if err != nil {
 		return quiz, err
 	}
-	return CreateQuizFromDynamoResults(id, returnValue), nil
+	return ql.createQuizFromDynamoResults(id, returnValue), nil
 }
 
-func CreateQuizFromDynamoResults(id string, result interface{}) models.Quiz {
+func (ql DynamoQuizLoader) createQuizFromDynamoResults(id string, result interface{}) models.Quiz {
 	output, ok := result.(*dynamodb.QueryOutput)
 	if ok == false {
 		return models.Quiz{}
@@ -53,30 +57,17 @@ func CreateQuizFromDynamoResults(id string, result interface{}) models.Quiz {
 	questions := make([]models.Question, len(output.Items))
 	for i, v := range output.Items {
 		question := models.Question{
-			Id: *v["id"].S,
+			Id:       *v["id"].S,
+			Question: *v["question"].S,
 		}
 
-		valueAnswer, hasAnswer := v["answer"]
-		if hasAnswer == true {
-			question.Answer = *valueAnswer.S
+		answers, err := ql.AnswerLoader.LoadBatch(question.Id)
+		if err == nil {
+			question.Answers = answers
+		} else {
+			log.Println("error processing answers from dynamo", err)
 		}
-
-		valueQuestion, hasQuestion := v["question"]
-		if hasQuestion == true {
-			question.Question = *valueQuestion.S
-		}
-
-		valueOptions, hasOptions := v["options"]
-		if hasOptions == true {
-			options := make([]string, len(valueOptions.L))
-			for j, ov := range valueOptions.L {
-				options[j] = *ov.S
-			}
-			question.Options = options
-		}
-		if question.IsValid() == true {
-			questions[i] = question
-		}
+		questions[i] = question
 	}
 	return models.Quiz{
 		Id:        id,

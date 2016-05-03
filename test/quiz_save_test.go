@@ -39,7 +39,6 @@ func TestQuizSaverReturnsErrorIfDynamoReturnsError(t *testing.T) {
 	answer := []*models.Answer{
 		&models.Answer{
 			Id:         "answer1",
-			Answer:     "shearer",
 			QuestionId: "question1",
 		},
 	}
@@ -57,12 +56,10 @@ func TestQuizSaverUsesCorrectParams(t *testing.T) {
 	answer := []*models.Answer{
 		&models.Answer{
 			Id:         "answer1",
-			Answer:     "shearer",
 			QuestionId: "question1",
 		},
 		&models.Answer{
 			Id:         "answer2",
-			Answer:     "South Shields",
 			QuestionId: "question2",
 		},
 	}
@@ -71,7 +68,7 @@ func TestQuizSaverUsesCorrectParams(t *testing.T) {
 		Answers: answer,
 	})
 	for _, v := range service.SaveParams {
-		put, ok := v.(*dynamodb.PutItemInput)
+		put, ok := v.(*dynamodb.UpdateItemInput)
 
 		if ok == false {
 			t.Error("Expected Params to be type PutItemOutput")
@@ -80,25 +77,21 @@ func TestQuizSaverUsesCorrectParams(t *testing.T) {
 		if *put.TableName != "Answer" {
 			t.Errorf("TableName expected: %v Got %v", *put.TableName)
 		}
-		quizId := *put.Item["quizId"]
-		if quizId.S == nil || *quizId.S != "test" {
-			t.Errorf("Expected quiz id to be test got %v", *quizId.S)
-		}
 
-		id := *put.Item["id"]
+		id := *put.Key["id"]
 		if id.S == nil || (*id.S != "answer1" && *id.S != "answer2") {
 			t.Errorf("Expected id to be answer1 or answer2 got %v", *id.S)
 		}
 
-		questionId := *put.Item["questionId"]
+		questionId := *put.Key["questionId"]
 		if questionId.S == nil || (*questionId.S != "question1" && *questionId.S != "question2") {
 			t.Errorf("Expected quiz id to question1 or question2 got %v", *questionId.S)
 		}
 
-		a := *put.Item["answer"]
-		if a.S == nil || (*a.S != "shearer" && *a.S != "South Shields") {
-			t.Errorf("Expected answer to be shearer or South Shields")
-		}
+    updateExpression := *put.UpdateExpression
+    if updateExpression != "SET answerCount = answerCount + :inc" {
+			t.Errorf("Expected Update Expression to increment counter got %s", updateExpression)
+    }
 	}
 }
 

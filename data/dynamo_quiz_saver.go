@@ -2,14 +2,12 @@ package data
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/satori/go.uuid"
-	"sync"
 )
-
-const AnswerTableName = "Answer"
 
 type DynamoQuizSaver struct {
 	Service DataService
@@ -35,34 +33,35 @@ func (dqs DynamoQuizSaver) Save(quiz *models.AnsweredQuiz) {
 
 	dqs.wg.Add(len(quiz.Answers))
 	for _, v := range quiz.Answers {
-		go dqs.upload(v, quiz.Id)
+		go dqs.upload(v)
 	}
 	dqs.wg.Wait()
 }
 
-func (dqs *DynamoQuizSaver) upload(answer *models.Answer, quizId string) {
+func (dqs *DynamoQuizSaver) upload(answer *models.Answer) {
 	answerId := answer.Id
 	if answerId == "" {
-		answerId = uuid.NewV4().String()
+		fmt.Println("Answer has no Id.  Can not upload.")
+		return
 	}
-	params := &dynamodb.PutItemInput{
+	params := &dynamodb.UpdateItemInput{
 		TableName: aws.String(AnswerTableName),
-		Item: map[string]*dynamodb.AttributeValue{
-			"id": &dynamodb.AttributeValue{
-				S: aws.String(answerId),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(answer.Id),
 			},
-			"quizId": &dynamodb.AttributeValue{
-				S: aws.String(quizId),
-			},
-			"questionId": &dynamodb.AttributeValue{
+			"questionId": {
 				S: aws.String(answer.QuestionId),
 			},
-			"answer": &dynamodb.AttributeValue{
-				S: aws.String(answer.Answer),
+		},
+		UpdateExpression: aws.String(AnswerUpdateExpression),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":inc": {
+				N: aws.String("1"),
 			},
 		},
 	}
-	_, e := dqs.Service.PutItem(params)
+	_, e := dqs.Service.UpdateItem(params)
 	if e != nil {
 		fmt.Println(e)
 	}

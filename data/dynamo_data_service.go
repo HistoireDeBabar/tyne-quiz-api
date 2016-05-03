@@ -17,12 +17,12 @@ func CreateDynamoDataService() DataService {
 	}
 }
 
-func (dds DynamoDataService) PutItem(params interface{}) (result interface{}, err error) {
-	input, ok := params.(*dynamodb.PutItemInput)
+func (dds DynamoDataService) UpdateItem(params interface{}) (result interface{}, err error) {
+	input, ok := params.(*dynamodb.UpdateItemInput)
 	if ok == false {
 		return nil, errors.New("Invalid Param Type. Expected QueryInput")
 	}
-	result, err = dds.dynamoTable.PutItem(input)
+	result, err = dds.dynamoTable.UpdateItem(input)
 	return
 }
 

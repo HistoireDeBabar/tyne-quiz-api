@@ -1,17 +1,13 @@
 package models
 
 type Question struct {
-	Id       string   `json:"id"`
-	Answer   string   `json:"answer"`
-	Question string   `json:"question"`
-	Options  []string `json:"options"`
+	Id       string    `json:"id"`
+	Question string    `json:"question"`
+	Answers  []*Answer `json: "answers`
 }
 
 func (q *Question) IsValid() bool {
-	if q.Id == "" || q.Answer == "" || q.Question == "" {
-		return false
-	}
-	if q.Options == nil || len(q.Options) == 0 {
+	if q.Id == "" || q.Question == "" {
 		return false
 	}
 	return true

@@ -3,16 +3,17 @@ package test
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/HistoireDeBabar/tyne-quiz-api/ctrl"
-	"github.com/HistoireDeBabar/tyne-quiz-api/data"
-	"github.com/HistoireDeBabar/tyne-quiz-api/models"
-	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/HistoireDeBabar/tyne-quiz-api/ctrl"
+	"github.com/HistoireDeBabar/tyne-quiz-api/data"
+	"github.com/HistoireDeBabar/tyne-quiz-api/models"
+	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
 )
 
 func TestControllerReturnsJSONQuiz(t *testing.T) {

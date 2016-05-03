@@ -3,10 +3,11 @@ package ctrl
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/HistoireDeBabar/tyne-quiz-api/data"
-	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/HistoireDeBabar/tyne-quiz-api/data"
+	"github.com/HistoireDeBabar/tyne-quiz-api/models"
 )
 
 type QuizController struct {

@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"errors"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
@@ -20,7 +21,7 @@ func (mds *MockParamsReturnDataService) GetItem(params interface{}) (result inte
 	return result, nil
 }
 
-func (mds *MockParamsReturnDataService) PutItem(params interface{}) (result interface{}, err error) {
+func (mds *MockParamsReturnDataService) UpdateItem(params interface{}) (result interface{}, err error) {
 	mds.SaveParams[mds.SaveLength] = params
 	mds.SaveLength++
 	return result, nil
@@ -35,7 +36,7 @@ func (mds *MockErrorDataService) GetItem(params interface{}) (result interface{}
 	return result, errors.New("DataServiceError")
 }
 
-func (mds *MockErrorDataService) PutItem(params interface{}) (result interface{}, err error) {
+func (mds *MockErrorDataService) UpdateItem(params interface{}) (result interface{}, err error) {
 	return result, errors.New("DataServiceError")
 }
 
@@ -51,7 +52,7 @@ func (mds *MockReturnsEmptyResultsDataService) GetItem(params interface{}) (resu
 	return result, nil
 }
 
-func (mds *MockReturnsEmptyResultsDataService) PutItem(params interface{}) (result interface{}, err error) {
+func (mds *MockReturnsEmptyResultsDataService) UpdateItem(params interface{}) (result interface{}, err error) {
 	return result, errors.New("DataServiceError")
 }
 
@@ -65,7 +66,7 @@ func (mds *MockReturnsWrongTypedResultsDataService) GetItem(params interface{}) 
 	return result, nil
 }
 
-func (mds *MockReturnsWrongTypedResultsDataService) PutItem(params interface{}) (result interface{}, err error) {
+func (mds *MockReturnsWrongTypedResultsDataService) UpdateItem(params interface{}) (result interface{}, err error) {
 	return result, errors.New("DataServiceError")
 }
 
@@ -83,24 +84,8 @@ func (mds *MockReturnsResultsDataService) GetItem(params interface{}) (result in
 	vi := &dynamodb.AttributeValue{
 		S: aws.String("question-1"),
 	}
-	va := &dynamodb.AttributeValue{
-		S: aws.String("shearer"),
-	}
 	vqi := &dynamodb.AttributeValue{
 		S: aws.String("test"),
-	}
-	vo := &dynamodb.AttributeValue{
-		L: []*dynamodb.AttributeValue{
-			{
-				S: aws.String("rooney"),
-			},
-			{
-				S: aws.String("les ferdinand"),
-			},
-			{
-				S: aws.String("beardsley"),
-			},
-		},
 	}
 	// question 2
 	vq2 := &dynamodb.AttributeValue{
@@ -109,39 +94,19 @@ func (mds *MockReturnsResultsDataService) GetItem(params interface{}) (result in
 	vi2 := &dynamodb.AttributeValue{
 		S: aws.String("question-2"),
 	}
-	va2 := &dynamodb.AttributeValue{
-		S: aws.String("south shields"),
-	}
 	vqi2 := &dynamodb.AttributeValue{
 		S: aws.String("test"),
-	}
-	vo2 := &dynamodb.AttributeValue{
-		L: []*dynamodb.AttributeValue{
-			{
-				S: aws.String("gateshead"),
-			},
-			{
-				S: aws.String("boldon"),
-			},
-			{
-				S: aws.String("sunderland"),
-			},
-		},
 	}
 	values := []map[string]*dynamodb.AttributeValue{
 		{
 			"question": vq,
 			"id":       vi,
-			"answer":   va,
 			"quizId":   vqi,
-			"options":  vo,
 		},
 		{
 			"question": vq2,
 			"id":       vi2,
-			"answer":   va2,
 			"quizId":   vqi2,
-			"options":  vo2,
 		},
 	}
 
@@ -152,7 +117,7 @@ func (mds *MockReturnsResultsDataService) GetItem(params interface{}) (result in
 	return output, nil
 }
 
-func (mds *MockReturnsResultsDataService) PutItem(params interface{}) (result interface{}, err error) {
+func (mds *MockReturnsResultsDataService) UpdateItem(params interface{}) (result interface{}, err error) {
 	return result, errors.New("DataServiceError")
 }
 
@@ -161,7 +126,7 @@ func (mds *MockReturnsResultsDataService) PutItem(params interface{}) (result in
 */
 type MockReturnsResultsBadStructureDataService struct{}
 
-func (mds *MockReturnsResultsBadStructureDataService) PutItem(params interface{}) (result interface{}, err error) {
+func (mds *MockReturnsResultsBadStructureDataService) UpdateItem(params interface{}) (result interface{}, err error) {
 	return result, errors.New("DataServiceError")
 }
 
@@ -182,6 +147,72 @@ func (mds *MockReturnsResultsBadStructureDataService) GetItem(params interface{}
 			"nonconformed": vq,
 			"id":           vi,
 			"quizId":       vqi,
+		},
+	}
+
+	output := &dynamodb.QueryOutput{
+		Count: count,
+		Items: values,
+	}
+	return output, nil
+}
+
+/**
+  Retuns correct data for answers
+*/
+type MockReturnsResultsAnswerDataService struct{}
+
+func (mds *MockReturnsResultsAnswerDataService) UpdateItem(params interface{}) (result interface{}, err error) {
+	return result, errors.New("DataServiceError")
+}
+func (mds *MockReturnsResultsAnswerDataService) GetItem(params interface{}) (result interface{}, err error) {
+	count := &[]int64{2}[0]
+	// question 1
+	vq := &dynamodb.AttributeValue{
+		S: aws.String("a"),
+	}
+	vi := &dynamodb.AttributeValue{
+		S: aws.String("1"),
+	}
+	va := &dynamodb.AttributeValue{
+		S: aws.String("alan shearer"),
+	}
+	vac := &dynamodb.AttributeValue{
+		N: aws.String("1"),
+	}
+	vacom := &dynamodb.AttributeValue{
+		BOOL: aws.Bool(true),
+	}
+	// question 2
+	vq2 := &dynamodb.AttributeValue{
+		S: aws.String("a"),
+	}
+	vi2 := &dynamodb.AttributeValue{
+		S: aws.String("2"),
+	}
+	va2 := &dynamodb.AttributeValue{
+		S: aws.String("wayne rooney"),
+	}
+	vac2 := &dynamodb.AttributeValue{
+		N: aws.String("2"),
+	}
+	vacom2 := &dynamodb.AttributeValue{
+		BOOL: aws.Bool(false),
+	}
+	values := []map[string]*dynamodb.AttributeValue{
+		{
+			"questionId":  vq,
+			"id":          vi,
+			"answer":      va,
+			"answerCount": vac,
+			"correct":     vacom,
+		},
+		{
+			"questionId":  vq2,
+			"id":          vi2,
+			"answer":      va2,
+			"answerCount": vac2,
+			"correct":     vacom2,
 		},
 	}
 

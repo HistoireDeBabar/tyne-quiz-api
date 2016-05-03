@@ -1,10 +1,11 @@
 package test
 
 import (
+	"testing"
+
 	"github.com/HistoireDeBabar/tyne-quiz-api/data"
 	"github.com/HistoireDeBabar/tyne-quiz-api/test/fixtures"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"testing"
 )
 
 func TestLoadQuizWithNoDataService(t *testing.T) {
@@ -15,7 +16,7 @@ func TestLoadQuizWithNoDataService(t *testing.T) {
 	}
 }
 
-func TestLoadWhenSataServiceReturnsAnError(t *testing.T) {
+func TestLoadWhenDataServiceReturnsAnError(t *testing.T) {
 	service := &fixtures.MockErrorDataService{}
 	quizLoader := data.DynamoQuizLoader{
 		Service: service,
@@ -106,16 +107,8 @@ func TestDynamoReturnsResults(t *testing.T) {
 		t.Errorf("Expected question1 to be number 9 for newcastle.  Got %v", question1.Question)
 	}
 
-	if question1.Answer != "shearer" {
-		t.Errorf("Expected question1 to be shearer.  Got %v", question1.Answer)
-	}
-
 	if question1.Id != "question-1" {
 		t.Errorf("Expected question1 to be question1.  Got %v", question1.Id)
-	}
-
-	if len(question1.Options) != 3 {
-		t.Errorf("Expected question1 to be 3.  Got %v", len(question1.Options))
 	}
 
 }
