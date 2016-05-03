@@ -1,8 +1,8 @@
 package models
 
 type AnsweredQuiz struct {
-	Id      string    `json:"id"`
-	Answers []*Answer `json:"answers"`
+	Id      string   `json:"id"`
+	Answers []Answer `json:"answers"`
 }
 
 func (aq *AnsweredQuiz) IsValid() bool {

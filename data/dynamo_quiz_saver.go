@@ -38,7 +38,7 @@ func (dqs DynamoQuizSaver) Save(quiz *models.AnsweredQuiz) {
 	dqs.wg.Wait()
 }
 
-func (dqs *DynamoQuizSaver) upload(answer *models.Answer) {
+func (dqs *DynamoQuizSaver) upload(answer models.Answer) {
 	defer dqs.wg.Done()
 	if answer.IsValid() == false {
 		log.Println("QuizSaver::upload::Answer value is Invalid")

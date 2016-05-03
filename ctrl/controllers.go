@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/HistoireDeBabar/tyne-quiz-api/data"
@@ -19,6 +20,7 @@ const GET = "GET"
 const POST = "POST"
 
 func (qc *QuizController) PostAnswers(w http.ResponseWriter, r *http.Request) {
+	log.Println(fmt.Sprintf("Request::%s::Path::%s", r.Method, r.URL))
 	// Only accepts GET Methods
 	if r.Method != POST {
 		http.Error(w, "Status Method Not Allow", http.StatusMethodNotAllowed)
@@ -45,6 +47,7 @@ func (qc *QuizController) PostAnswers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (qc *QuizController) GetQuiz(w http.ResponseWriter, r *http.Request) {
+	log.Println(fmt.Sprintf("Request::%s::Path::%s", r.Method, r.URL))
 	// Only accepts GET Methods
 	if r.Method != GET {
 		http.Error(w, "Status Method Not Allow", http.StatusMethodNotAllowed)

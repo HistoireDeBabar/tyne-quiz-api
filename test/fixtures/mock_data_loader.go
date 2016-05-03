@@ -15,7 +15,7 @@ func (m MockQuizLoaderReturnsBasicQuiz) Load(id string) (quiz models.Quiz, err e
 			{
 				Id:       "a",
 				Question: "whats your name",
-				Answers: []*models.Answer{
+				Answers: []models.Answer{
 					{
 						Id:         "b",
 						QuestionId: "a",
@@ -36,7 +36,7 @@ func (m MockQuizLoaderAccessParams) Load(id string) (quiz models.Quiz, err error
 				{
 					Id:       "a",
 					Question: "whats your name",
-					Answers: []*models.Answer{
+					Answers: []models.Answer{
 						{
 							Id:         "b",
 							QuestionId: "a",

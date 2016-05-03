@@ -39,7 +39,7 @@ func TestControllerReturnsJSONQuiz(t *testing.T) {
 			{
 				Id:       "a",
 				Question: "whats your name",
-				Answers: []*models.Answer{
+				Answers: []models.Answer{
 					{
 						Id:         "b",
 						QuestionId: "a",

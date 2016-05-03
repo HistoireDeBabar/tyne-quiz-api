@@ -19,7 +19,7 @@ func CreateDynamoAnswerLoader() AnswerLoader {
 	}
 }
 
-func (dal *DynamoAnswerLoader) LoadBatch(id string) (answers []*models.Answer, err error) {
+func (dal *DynamoAnswerLoader) LoadBatch(id string) (answers []models.Answer, err error) {
 	if dal.Service == nil {
 		return answers, errors.New("DataService not instantiated")
 	}
@@ -40,17 +40,17 @@ func (dal *DynamoAnswerLoader) LoadBatch(id string) (answers []*models.Answer, e
 	return populateAnswers(result)
 }
 
-func populateAnswers(result interface{}) (answers []*models.Answer, err error) {
+func populateAnswers(result interface{}) (answers []models.Answer, err error) {
 	output, ok := result.(*dynamodb.QueryOutput)
 	if ok == false {
-		return []*models.Answer{}, nil
+		return []models.Answer{}, nil
 	}
 	if *output.Count == 0 {
-		return []*models.Answer{}, nil
+		return []models.Answer{}, nil
 	}
-	answers = make([]*models.Answer, len(output.Items))
+	answers = make([]models.Answer, len(output.Items))
 	for i, v := range output.Items {
-		answer := &models.Answer{
+		answer := models.Answer{
 			Id:         *v["id"].S,
 			QuestionId: *v["questionId"].S,
 			Answer:     *v["answer"].S,

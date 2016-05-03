@@ -20,7 +20,7 @@ func TestQuizSaverReturnsErrorIfAnsweredQuizHasNoAnswers(t *testing.T) {
 		Service: service,
 	}
 	quizSaver.Save(&models.AnsweredQuiz{
-		Answers: []*models.Answer{},
+		Answers: []models.Answer{},
 	})
 }
 
@@ -37,8 +37,8 @@ func TestQuizSaverReturnsErrorIfDynamoReturnsError(t *testing.T) {
 	quizSaver := data.DynamoQuizSaver{
 		Service: service,
 	}
-	answer := []*models.Answer{
-		&models.Answer{
+	answer := []models.Answer{
+		models.Answer{
 			Id:         "answer1",
 			QuestionId: "question1",
 		},
@@ -54,12 +54,12 @@ func TestQuizSaverUsesCorrectParams(t *testing.T) {
 	quizSaver := data.DynamoQuizSaver{
 		Service: service,
 	}
-	answer := []*models.Answer{
-		&models.Answer{
+	answer := []models.Answer{
+		models.Answer{
 			Id:         "answer1",
 			QuestionId: "question1",
 		},
-		&models.Answer{
+		models.Answer{
 			Id:         "answer2",
 			QuestionId: "question2",
 		},
@@ -100,7 +100,7 @@ func BenchmarkDynamoSaveConnection(b *testing.B) {
 	dataSaver := data.CreateDynamoDataSaver()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		answer := []*models.Answer{
+		answer := []models.Answer{
 			models.CreateAnswer("question2", "south shields"),
 			models.CreateAnswer("question1", "shearer"),
 		}
