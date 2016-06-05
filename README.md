@@ -2,7 +2,7 @@
 
 ###### Get
 
-    /quiz?=id
+    /quiz?id=id
 
 
   **Response**
@@ -29,7 +29,7 @@
 
 ###### Post
 
-    /answer
+    /answers
 
 
 **Request**
