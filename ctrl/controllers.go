@@ -18,10 +18,18 @@ type QuizController struct {
 
 const GET = "GET"
 const POST = "POST"
+const OPTIONS = "OPTIONS"
 
 func (qc *QuizController) PostAnswers(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("Request::%s::Path::%s", r.Method, r.URL))
-	// Only accepts GET Methods
+	// For CORS
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	if r.Method == OPTIONS {
+		return
+	}
+	// Only accepts POST Methods
 	if r.Method != POST {
 		http.Error(w, "Status Method Not Allow", http.StatusMethodNotAllowed)
 		return
@@ -47,6 +55,7 @@ func (qc *QuizController) PostAnswers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (qc *QuizController) GetQuiz(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	log.Println(fmt.Sprintf("Request::%s::Path::%s", r.Method, r.URL))
 	// Only accepts GET Methods
 	if r.Method != GET {

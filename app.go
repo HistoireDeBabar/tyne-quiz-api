@@ -8,7 +8,7 @@ import (
 	"github.com/HistoireDeBabar/tyne-quiz-api/data"
 )
 
-const port = ":80"
+const port = ":3001"
 
 func main() {
 	log.Println("Initialising app")
